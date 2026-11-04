@@ -1,0 +1,27 @@
+.settings__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.settings .card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings__row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings__note {
+  font-size: var(--fs-sm);
+}
+
+.settings__range {
+  width: 100%;
+  accent-color: var(--c-primary);
+}

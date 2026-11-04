@@ -1,0 +1,174 @@
+/*
+ * Design tokens — DevTools Workspace
+ * Base visual herdada do ReservaSalasReunião (JBS):
+ *   primário #6190BD · hover #527FA9 · azul profundo #3f6a92 · pontos rgba(100,181,246)
+ *   Public Sans · cards com raio 8px e borda de 1px · elevação discreta no hover
+ * Extensão futurista: fundo escuro, neon azul, ciano e roxo como acentos.
+ */
+
+:root {
+  /* Marca */
+  --c-primary: #6190bd;
+  --c-primary-hover: #527fa9;
+  --c-primary-deep: #3f6a92;
+  --c-primary-rgb: 97, 144, 189;
+  --c-neon: #64b5f6;
+  --c-neon-rgb: 100, 181, 246;
+  --c-cyan: #22d3ee;
+  --c-cyan-rgb: 34, 211, 238;
+  --c-violet: #a78bfa;
+  --c-violet-rgb: 167, 139, 250;
+
+  /* Estados (mesma semântica do ReservaSalas, ajustados para fundo escuro) */
+  --c-success: #4fbf86;
+  --c-success-rgb: 79, 191, 134;
+  --c-warning: #e0a94a;
+  --c-warning-rgb: 224, 169, 74;
+  --c-error: #f06363;
+  --c-error-rgb: 240, 99, 99;
+
+  /* Tipografia */
+  --font-sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-base: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 26px;
+  --fs-3xl: 36px;
+
+  /* Espaço e forma */
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 72px;
+  --navbar-h: 60px;
+
+  /* Movimento */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 0.15s;
+  --dur: 0.25s;
+  --dur-slow: 0.5s;
+
+  /* Paleta de profundidade (XML / grafos): níveis vizinhos alternam família de cor
+     (azul → roxo → ciano → laranja → verde → rosa), para pai e filho nunca parecerem iguais */
+  --depth-0: #64b5f6;
+  --depth-1: #b49cff;
+  --depth-2: #22d3ee;
+  --depth-3: #f2a65a;
+  --depth-4: #4fbf86;
+  --depth-5: #f472b6;
+}
+
+/* ───────────── Tema escuro (padrão) ───────────── */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0a0f18;
+  --bg-elevated: #0e1522;
+  --surface: #111a29;
+  --surface-2: #152033;
+  --surface-3: #1b2940;
+  --surface-hover: #1a2638;
+  --border: rgba(148, 180, 220, 0.12);
+  --border-strong: rgba(148, 180, 220, 0.22);
+  --text: #e6edf6;
+  --text-muted: #93a4ba;
+  --text-subtle: #66788f;
+  --on-primary: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5);
+  --glow: 0 0 0 1px rgba(var(--c-neon-rgb), 0.35), 0 0 18px rgba(var(--c-neon-rgb), 0.18);
+  --glow-strong: 0 0 0 1px rgba(var(--c-neon-rgb), 0.6), 0 0 26px rgba(var(--c-neon-rgb), 0.35);
+  --grid-line: rgba(100, 181, 246, 0.05);
+  --dot: rgba(100, 181, 246, 0.55);
+  --scrollbar: #2a3a54;
+
+  /* Sintaxe */
+  --syn-key: #8ab8e6;
+  --syn-string: #7fd1b9;
+  --syn-number: #f2b880;
+  --syn-bool: #c4a7ff;
+  --syn-null: #f08da6;
+  --syn-punct: #6f8299;
+  --syn-comment: #5d6f86;
+  --syn-tag: #64b5f6;
+  --syn-attr: #a78bfa;
+
+  /* Gráficos — paleta categórica validada (CVD/contraste) contra --surface #111a29 */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-other: #5b6b82;
+  --chart-grid: #1f2b3e;
+  --chart-axis: #34445c;
+}
+
+/* ───────────── Tema claro (fiel ao ReservaSalas) ───────────── */
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f5f9;
+  --bg-elevated: #fbfbfd;
+  --surface: #ffffff;
+  --surface-2: #f7f9fc;
+  --surface-3: #eef2f8;
+  --surface-hover: #f1f5fa;
+  --border: #e4e7ec;
+  --border-strong: #d0d5dd;
+  --text: #101828;
+  --text-muted: #5b6b82;
+  --text-subtle: #98a2b3;
+  --on-primary: #ffffff;
+  --c-neon: #3f86d6;
+  --c-neon-rgb: 63, 134, 214;
+  --c-cyan: #0e9fb8;
+  --c-cyan-rgb: 14, 159, 184;
+  --c-violet: #7c5ce0;
+  --c-violet-rgb: 124, 92, 224;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow: 0 4px 12px rgba(26, 35, 126, 0.08);
+  --shadow-lg: 0 16px 40px rgba(26, 35, 126, 0.14);
+  --glow: 0 0 0 1px rgba(var(--c-primary-rgb), 0.45), 0 4px 12px rgba(26, 35, 126, 0.12);
+  --glow-strong: 0 0 0 2px rgba(var(--c-primary-rgb), 0.6), 0 6px 18px rgba(26, 35, 126, 0.2);
+  --grid-line: rgba(63, 106, 146, 0.06);
+  --dot: rgba(100, 181, 246, 0.9);
+  --scrollbar: #dbdade;
+
+  --depth-0: #2f78c4;
+  --depth-1: #7c5ce0;
+  --depth-2: #0e8fa6;
+  --depth-3: #c27522;
+  --depth-4: #2f9a63;
+  --depth-5: #c2408a;
+
+  --syn-key: #2f5f8f;
+  --syn-string: #18805f;
+  --syn-number: #b4551a;
+  --syn-bool: #7c3aed;
+  --syn-null: #be185d;
+  --syn-punct: #6b7a90;
+  --syn-comment: #98a2b3;
+  --syn-tag: #2f78c4;
+  --syn-attr: #7c5ce0;
+
+  /* Gráficos — paleta validada contra --surface #ffffff (3 slots < 3:1 → legenda com valores + tabela) */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #6250d6;
+  --series-other: #98a2b3;
+  --chart-grid: #eceef2;
+  --chart-axis: #d0d5dd;
+}
