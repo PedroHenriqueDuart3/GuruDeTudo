@@ -1095,16 +1095,21 @@ class Renderer {
   }
 
   /* ── conjunto de condições (WHERE, HAVING, ON, AND do MERGE) ── */
-  conds(w, conds, connEnd) {
-    const align = w.col === connEnd + 2
+  /** Lados esquerdos das comparações (para alinhar os "="), renderizados na coluna do conteúdo. */
+  condInfo(conds, contentCol) {
     const info = conds.map((c) => {
-      if (!align) return null
       const k = findTop(c.toks, (t) => t.t === 'op' && COMPARISON.has(t.v))
       if (k <= 0) return null
-      const left = this.inline(c.toks.slice(0, k), connEnd + 2)
+      const left = this.inline(c.toks.slice(0, k), contentCol)
       return left.length === 1 ? { k, left: left[0] } : null
     })
-    const maxW = Math.max(0, ...info.filter(Boolean).map((x) => x.left.length))
+    return { info, maxW: Math.max(0, ...info.filter(Boolean).map((x) => x.left.length)) }
+  }
+
+  /** shared: { info, maxW } pré-calculado — usado para alinhar os "=" de vários JOINs na mesma coluna. */
+  conds(w, conds, connEnd, shared = null) {
+    const align = w.col === connEnd + 2
+    const { info, maxW } = align ? (shared ?? this.condInfo(conds, connEnd + 2)) : { info: [], maxW: 0 }
     conds.forEach((c, idx) => {
       if (idx > 0) {
         const start = Math.max(0, connEnd - c.op.length + 1)
@@ -1221,30 +1226,51 @@ class Renderer {
     this.items(w, splitByComma(toks.slice(k)), col + 5, { multiCase: true })
   }
 
+  /**
+   * FROM + JOINs. Com vários JOINs, todos os ON ficam na mesma coluna (o mais à direita),
+   * os AND/OR alinham à direita embaixo do ON e os "=" de todos os JOINs ficam numa coluna só.
+   */
   fromClause(w, toks, col) {
     const kw = toks[0]
     const segs = splitJoins(toks.slice(1))
-    segs.forEach((s, idx) => {
-      if (idx === 0) w.line(rioCol(col, 'FROM'), `${withMarks('FROM', kw)} `)
-      else if (s.kw === ',') {
-        w.comments(takeLead(s.kwToks[0]), col + 5)
-        w.line(col + 5, `${withMarks(',', s.kwToks[0])} `)
-        this.ctx.ext('comma-join', 'Tabelas separadas por vírgula no FROM seguem a vírgula à esquerda, no rio.')
-      } else {
-        w.comments(takeLead(s.kwToks[0]), col + 7)
-        w.line(col + 7, `${withMarks(s.kw, ...s.kwToks)} `)
-        if (s.norm === 'join') this.ctx.note('join', 'JOIN → INNER JOIN')
-        if (s.norm === 'outer') this.ctx.note('outer', 'LEFT/RIGHT/FULL OUTER JOIN → sem OUTER')
-        if (/APPLY/.test(s.kw)) this.ctx.ext('apply', 'CROSS / OUTER APPLY seguem a posição do JOIN (embaixo do dbo do FROM).')
-      }
+    const joinCol = col + 7
+    // 1ª passada: comentários, prefixos e fontes já renderizadas (para medir onde cada ON cairia)
+    const pre = segs.map((s, idx) => {
       this.qualifySource(s.src)
-      w.frag(this.inline(s.src, w.col))
-      if (s.onTok) {
-        w.add(' ')
-        const onCol = w.col
-        w.add(`${withMarks('ON', s.onTok)} `)
-        this.conds(w, splitConds(s.on), onCol + 1)
+      if (idx === 0) return { comments: [], head: `${withMarks('FROM', kw)} `, headCol: rioCol(col, 'FROM') }
+      if (s.kw === ',') {
+        this.ctx.ext('comma-join', 'Tabelas separadas por vírgula no FROM seguem a vírgula à esquerda, no rio.')
+        return { comments: takeLead(s.kwToks[0]), head: `${withMarks(',', s.kwToks[0])} `, headCol: col + 5, commentCol: col + 5 }
       }
+      if (s.norm === 'join') this.ctx.note('join', 'JOIN → INNER JOIN')
+      if (s.norm === 'outer') this.ctx.note('outer', 'LEFT/RIGHT/FULL OUTER JOIN → sem OUTER')
+      if (/APPLY/.test(s.kw)) this.ctx.ext('apply', 'CROSS / OUTER APPLY seguem a posição do JOIN (embaixo do dbo do FROM).')
+      return { comments: takeLead(s.kwToks[0]), head: `${withMarks(s.kw, ...s.kwToks)} `, headCol: joinCol, commentCol: joinCol }
+    })
+    pre.forEach((p, idx) => {
+      const startCol = p.headCol + p.head.length
+      p.frag = this.inline(segs[idx].src, startCol)
+      p.endCol = p.frag.length === 1 ? startCol + p.frag[0].length : p.frag[p.frag.length - 1].length
+    })
+    const withOn = segs.map((s, idx) => (s.onTok && idx > 0 ? idx : -1)).filter((i) => i >= 0)
+    const onCol = withOn.length ? Math.max(...withOn.map((i) => pre[i].endCol + 1)) : 0
+    const conds = segs.map((s) => (s.onTok ? splitConds(s.on) : null))
+    let shared = null
+    if (withOn.length > 1) {
+      this.ctx.ext('join-multi', 'Vários JOINs: todos os ON na mesma coluna, AND/OR alinhados à direita sob o ON e os "=" de todos os JOINs numa coluna só.')
+      const infos = withOn.map((i) => this.condInfo(conds[i], onCol + 3))
+      shared = { maxW: Math.max(...infos.map((x) => x.maxW)), byIdx: new Map(withOn.map((i, j) => [i, infos[j].info])) }
+    }
+    segs.forEach((s, idx) => {
+      const p = pre[idx]
+      if (p.comments.length) w.comments(p.comments, p.commentCol)
+      w.line(p.headCol, p.head)
+      w.frag(p.frag)
+      if (!s.onTok) return
+      const at = withOn.length > 1 ? onCol : w.col + 1
+      w.add(pad(at - w.col))
+      w.add(`${withMarks('ON', s.onTok)} `)
+      this.conds(w, conds[idx], at + 1, shared && { info: shared.byIdx.get(idx), maxW: shared.maxW })
     })
   }
 

@@ -181,3 +181,23 @@ test('lexer anexa comentários ao token certo', () => {
   const b = tokens.find((t) => t.v === 'b')
   assert.equal(b.trail[0].text, '/* c2 */')
 })
+
+test('vários JOINs: ON na mesma coluna, AND sob o ON e "=" numa coluna só', () => {
+  const out = fmt(`select AGENTE.NOME from RISCOS
+inner join ITEMRISCO on RISCOS.CODCOLIGADA = ITEMRISCO.CODCOLIGADA and RISCOS.CODITEMRISCO = ITEMRISCO.CODITEMRISCO
+left join NIVELRISCO on NIVELRISCO.CODCOLIGADA = RISCOS.CODCOLIGADA and NIVELRISCO.CODITEMRISCO = RISCOS.CODITEMRISCO and NIVELRISCO.CODNIVELRISCO = RISCOS.CODNIVELRISCO
+inner join AGENTE on AGENTE.CODAGENTE = RISCOS.CODAGENTE`)
+  assert.equal(
+    out,
+    `SELECT AGENTE.NOME
+  FROM dbo.RISCOS
+       INNER JOIN dbo.ITEMRISCO ON RISCOS.CODCOLIGADA       = ITEMRISCO.CODCOLIGADA
+                               AND RISCOS.CODITEMRISCO      = ITEMRISCO.CODITEMRISCO
+       LEFT JOIN dbo.NIVELRISCO ON NIVELRISCO.CODCOLIGADA   = RISCOS.CODCOLIGADA
+                               AND NIVELRISCO.CODITEMRISCO  = RISCOS.CODITEMRISCO
+                               AND NIVELRISCO.CODNIVELRISCO = RISCOS.CODNIVELRISCO
+       INNER JOIN dbo.AGENTE    ON AGENTE.CODAGENTE         = RISCOS.CODAGENTE;
+`,
+  )
+  assert.equal(fmt(out), out)
+})
