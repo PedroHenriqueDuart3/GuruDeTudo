@@ -242,3 +242,58 @@ export function XmlScene({ progress }) {
     </Frame>
   )
 }
+
+/* ───────────────────────── DB ───────────────────────── */
+
+const TABLES = [
+  { id: 'dep', name: 'Departamento', cols: ['Id', 'Nome'], pk: [0], fk: [], from: { x: 330, y: 230, r: 14 }, to: { x: 40, y: 80 } },
+  { id: 'col', name: 'Colaborador', cols: ['Id', 'Nome', 'IdDepartamento'], pk: [0], fk: [2], from: { x: 60, y: 250, r: -12 }, to: { x: 320, y: 60 } },
+  { id: 'proj', name: 'Projeto', cols: ['Id', 'IdDepartamento'], pk: [0], fk: [1], from: { x: 300, y: 70, r: 8 }, to: { x: 320, y: 230 } },
+]
+
+function DbTable({ progress, t, i }) {
+  const appear = useWindow(progress, 0.04 + i * 0.08, 0.18 + i * 0.08)
+  const arrange = useWindow(progress, 0.3, 0.55)
+  const x = useTransform(arrange, [0, 1], [t.from.x, t.to.x])
+  const y = useTransform(arrange, [0, 1], [t.from.y, t.to.y])
+  const rotate = useTransform(arrange, [0, 1], [t.from.r, 0])
+  const h = 30 + t.cols.length * 22
+  return (
+    <motion.g style={{ x, y, rotate, opacity: appear }}>
+      <rect width={200} height={h} rx={8} className="scene__table" />
+      <path d={`M0 8 a8 8 0 0 1 8 -8 H192 a8 8 0 0 1 8 8 V30 H0 Z`} className="scene__table-head" />
+      <text x={14} y={20} className="scene__table-name">
+        {t.name}
+      </text>
+      {t.cols.map((c, ci) => (
+        <text key={c} x={14} y={48 + ci * 22} className={`scene__table-col ${t.pk.includes(ci) ? 'is-pk' : ''} ${t.fk.includes(ci) ? 'is-fk' : ''}`}>
+          <tspan className="scene__table-key">{t.pk.includes(ci) ? 'PK' : t.fk.includes(ci) ? 'FK' : ''}</tspan>
+          <tspan x={40}>{c}</tspan>
+        </text>
+      ))}
+    </motion.g>
+  )
+}
+
+function DbEdge({ progress, d, i }) {
+  const w = useWindow(progress, 0.58 + i * 0.08, 0.78 + i * 0.08)
+  return <motion.path d={d} className="scene__rel" style={{ pathLength: w }} />
+}
+
+export function DbScene({ progress }) {
+  const sym = useWindow(progress, 0.85, 0.95)
+  return (
+    <Frame title="exemplo.sql → diagrama">
+      <DbEdge progress={progress} i={0} d="M 320 147 C 270 147, 280 108, 240 108" />
+      <DbEdge progress={progress} i={1} d="M 320 297 C 270 297, 280 130, 240 130" />
+      {TABLES.map((t, i) => (
+        <DbTable key={t.id} progress={progress} t={t} i={i} />
+      ))}
+      <motion.g style={{ opacity: sym }}>
+        <text x={246} y={102} className="scene__card">||</text>
+        <text x={300} y={142} className="scene__card">o&lt;</text>
+        <text x={300} y={292} className="scene__card">o&lt;</text>
+      </motion.g>
+    </Frame>
+  )
+}

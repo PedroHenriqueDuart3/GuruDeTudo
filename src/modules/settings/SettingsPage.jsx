@@ -8,6 +8,7 @@ import PageHeader from '@layouts/components/PageHeader'
 import { useActivity } from '@/stores/activity'
 import { useSettings } from '@/stores/settings'
 import { FORMATS } from '@modules/cron/lib/cronSpec'
+import { DIALECTS } from '@modules/dbdiagram/lib/sql/dialects'
 import './settings.css'
 
 export default function SettingsPage() {
@@ -78,6 +79,12 @@ export default function SettingsPage() {
             ]}
           />
           <Switch checked={s.wrapLines} onChange={(v) => s.set({ wrapLines: v })} label="Quebra de linha automática" description="Linhas longas quebram em vez de rolar na horizontal." />
+          <Select
+            label="Dialeto SQL padrão"
+            value={s.sqlDialect}
+            onChange={(e) => s.set({ sqlDialect: e.target.value })}
+            options={Object.values(DIALECTS).map((d) => ({ value: d.id, label: d.label }))}
+          />
         </Card>
 
         <Card title="CRON" icon={mdiTimerCogOutline}>

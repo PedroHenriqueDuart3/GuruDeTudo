@@ -1,6 +1,7 @@
 import {
   mdiCodeBraces,
   mdiCogOutline,
+  mdiDatabaseOutline,
   mdiTimerCogOutline,
   mdiViewDashboardOutline,
   mdiXml,
@@ -40,6 +41,16 @@ export const TOOLS = [
     accent: 'violet',
     tagline: 'Tags neon pareadas, hierarquia visível e árvore navegável.',
     features: ['Pares de tags destacados', 'Guias de hierarquia', 'Árvore estrutural', 'Virtualização'],
+  },
+  {
+    id: 'db',
+    path: '/db-diagram',
+    title: 'Database Diagram',
+    short: 'SQL',
+    icon: mdiDatabaseOutline,
+    accent: 'neon',
+    tagline: 'Transforme CREATE TABLE em diagramas ER interativos.',
+    features: ['Parser SQL com AST', 'PK / FK / UNIQUE', 'Layout automático', 'SVG · PNG · DBML'],
   },
 ]
 
