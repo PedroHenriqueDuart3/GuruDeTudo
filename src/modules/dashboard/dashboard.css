@@ -877,6 +877,17 @@
   text-anchor: start;
 }
 
+.scene__model-code {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.scene__model-type {
+  fill: var(--text-subtle);
+  font-size: 10px;
+}
+
 .dash-footer {
   display: flex;
   justify-content: space-between;

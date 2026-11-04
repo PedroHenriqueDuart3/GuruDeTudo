@@ -2,6 +2,7 @@ import {
   mdiAnvil,
   mdiCodeBraces,
   mdiCogOutline,
+  mdiCubeOutline,
   mdiDatabaseOutline,
   mdiTimerCogOutline,
   mdiViewDashboardOutline,
@@ -62,6 +63,16 @@ export const TOOLS = [
     accent: 'violet',
     tagline: 'Procedures, views e scripts T-SQL reescritos no padrão do Pedro.',
     features: ['Rio de palavras-chave', 'Vírgula à esquerda', '"=" alinhados', 'Checklist do padrão'],
+  },
+  {
+    id: 'modelgen',
+    path: '/models',
+    title: 'Model Generator',
+    short: 'MODELS',
+    icon: mdiCubeOutline,
+    accent: 'cyan',
+    tagline: 'Tabelas, procedures e JSON viram classes em C#, Java, Kotlin, Python, TypeScript e Go.',
+    features: ['6 linguagens', 'EF Core · JPA · Pydantic · Zod · GORM', 'Resultado de procedure tipado', '.zip com um arquivo por classe'],
   },
 ]
 

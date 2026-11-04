@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS = {
   sidebarCollapsed: false,
   sqlDialect: 'sqlserver',
   forge: { qualifyDbo: true, renameTemp: true, stripBrackets: true },
+  modelgen: { language: 'csharp', styles: {}, namespaces: {}, naming: 'convention', comments: true, detectDates: true, rootName: 'Modelo' },
 }
 
 /** Configurações do usuário — persistidas no localStorage (somente no navegador). */

@@ -374,3 +374,67 @@ export function SqlForgeScene({ progress }) {
     </Frame>
   )
 }
+
+/* ───────────────────────── MODEL GENERATOR ───────────────────────── */
+
+const MODEL_COLS = [
+  { n: 'CODAGENTE', t: 'INT', k: 'PK' },
+  { n: 'NOME', t: 'VARCHAR(100)', k: '' },
+  { n: 'ATIVO', t: 'BIT', k: '' },
+]
+
+const MODEL_LANGS = [
+  { l: 'C#', lines: ['public class Agente {', '  public int Codagente', '  public string Nome', '  public bool Ativo', '}'] },
+  { l: 'Java', lines: ['public class Agente {', '  private Integer codagente;', '  private String nome;', '  private Boolean ativo;', '}'] },
+  { l: 'Python', lines: ['@dataclass', 'class Agente:', '  codagente: int', '  nome: str', '  ativo: bool'] },
+]
+
+function ModelCard({ progress, lang, i }) {
+  const w = useWindow(progress, 0.32 + i * 0.16, 0.48 + i * 0.16)
+  const x = useTransform(w, [0, 1], [40, 0])
+  const y = 64 + i * 98
+  return (
+    <motion.g style={{ opacity: w, x }}>
+      <rect x={276} y={y} width={258} height={88} rx={8} className="scene__table" />
+      <text x={290} y={y + 18} className="scene__table-key">
+        {lang.l}
+      </text>
+      {lang.lines.slice(0, 4).map((ln, j) => (
+        <text key={j} x={290} y={y + 36 + j * 14} className="scene__model-code" style={{ whiteSpace: 'pre' }}>
+          {ln}
+        </text>
+      ))}
+    </motion.g>
+  )
+}
+
+export function ModelScene({ progress }) {
+  const appear = useWindow(progress, 0.04, 0.18)
+  const flow = useWindow(progress, 0.22, 0.85)
+  return (
+    <Frame title="dbo.AGENTE → models">
+      <motion.g style={{ opacity: appear }}>
+        <rect x={26} y={120} width={210} height={30 + MODEL_COLS.length * 26} rx={8} className="scene__table" />
+        <path d="M26 128 a8 8 0 0 1 8 -8 H228 a8 8 0 0 1 8 8 V150 H26 Z" className="scene__table-head" />
+        <text x={40} y={140} className="scene__table-name">
+          AGENTE
+        </text>
+        {MODEL_COLS.map((c, j) => (
+          <text key={c.n} x={40} y={172 + j * 26} className={`scene__table-col ${c.k ? 'is-pk' : ''}`}>
+            <tspan className="scene__table-key">{c.k}</tspan>
+            <tspan x={64}>{c.n}</tspan>
+            <tspan x={150} className="scene__model-type">
+              {c.t}
+            </tspan>
+          </text>
+        ))}
+      </motion.g>
+      {[0, 1, 2].map((i) => (
+        <motion.path key={i} d={`M 236 ${170} C 256 ${170}, 252 ${108 + i * 98}, 276 ${108 + i * 98}`} className="scene__rel" style={{ pathLength: flow, opacity: flow }} />
+      ))}
+      {MODEL_LANGS.map((l, i) => (
+        <ModelCard key={l.l} progress={progress} lang={l} i={i} />
+      ))}
+    </Frame>
+  )
+}

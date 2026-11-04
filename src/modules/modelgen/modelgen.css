@@ -1,0 +1,96 @@
+/* Model Generator */
+
+.mg-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: -4px 0 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+}
+
+.mg-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-subtle);
+}
+
+.mg-field .input {
+  height: 30px;
+  font-size: var(--fs-sm);
+}
+
+.mg-ns {
+  width: 210px;
+}
+
+.mg-root {
+  width: 120px;
+}
+
+.mg-out .pane__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.mg-out .pane__body > .code-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+.mg-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: thin;
+}
+
+.mg-tab {
+  flex: none;
+  padding: 6px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+
+.mg-tab:hover {
+  color: var(--text);
+}
+
+.mg-tab.is-active {
+  border-bottom-color: var(--c-cyan);
+  color: var(--text);
+}
+
+.mg-issues {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 110px;
+  overflow: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.mg-issue {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  color: var(--c-warning);
+  font-size: var(--fs-sm);
+}
+
+.mg-issue svg {
+  flex: none;
+  margin-top: 2px;
+}
