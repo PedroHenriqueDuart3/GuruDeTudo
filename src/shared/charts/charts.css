@@ -1,0 +1,243 @@
+.chart {
+  position: relative;
+  width: 100%;
+}
+
+.chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.chart-grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.chart-axis {
+  stroke: var(--chart-axis);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.chart-tick {
+  fill: var(--text-subtle);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-label {
+  fill: var(--text-muted);
+  font-size: 12px;
+}
+
+.chart-value {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.chart-axis-title {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.chart-mark {
+  cursor: default;
+  outline: none;
+}
+
+.chart-bar {
+  transition: opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+  transform-origin: bottom;
+  animation: chart-grow 0.55s var(--ease-out) both;
+}
+
+.chart-mark:hover .chart-bar,
+.chart-mark:focus-visible .chart-bar {
+  filter: brightness(1.18);
+}
+
+@keyframes chart-grow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.chart-line {
+  stroke-dasharray: 4000;
+  stroke-dashoffset: 4000;
+  animation: chart-draw 1.1s var(--ease-out) forwards;
+}
+
+@keyframes chart-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* anel de 2px na cor da superfície em marcadores sobrepostos */
+.chart-dot {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.chart-dot--hover {
+  stroke-width: 2.5;
+}
+
+.chart-crosshair {
+  stroke: var(--text-subtle);
+  stroke-width: 1;
+}
+
+.chart-arc {
+  stroke: var(--surface);
+  stroke-width: 2;
+  outline: none;
+  transition: d 0.2s ease;
+  cursor: default;
+}
+
+.chart-pie-value {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.chart-pie-label {
+  fill: var(--text-muted);
+  font-size: 12px;
+}
+
+.chart--pie {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.chart-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.chart-legend--column {
+  flex-direction: column;
+  flex: 1;
+  min-width: 220px;
+  gap: 4px;
+}
+
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.chart-legend li.is-active {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.chart-legend__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.chart-legend__value {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-legend__pct {
+  width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 12px));
+  white-space: nowrap;
+}
+
+.chart-tip__value {
+  font-size: var(--fs-base);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tip__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chart-tip__key {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.data-table th,
+.data-table td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+
+.data-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table tr:hover td {
+  background: var(--surface-hover);
+}

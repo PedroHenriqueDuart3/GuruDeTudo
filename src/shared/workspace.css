@@ -1,0 +1,153 @@
+/* Layout comum das ferramentas: toolbar → painéis → barra de status */
+.tool-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--navbar-h) - 48px);
+}
+
+.tool-toolbar {
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.tool-select {
+  width: auto;
+  height: 30px;
+  font-size: var(--fs-sm);
+}
+
+.tool-split {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* linha limitada à altura do container: o conteúdo (SVG, editor) rola por dentro em vez de esticar o painel */
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
+  /* flex: none — com flex: 1 a altura declarada era ignorada e o painel crescia até o
+     tamanho mínimo do conteúdo (o SVG do diagrama chegava a 1.100px) */
+  flex: none;
+  min-height: 560px;
+  height: calc(100vh - 290px);
+}
+
+.tool-split--editor,
+.tool-split--view {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: border-color var(--dur) ease, box-shadow var(--dur) ease;
+}
+
+.pane:focus-within {
+  border-color: rgba(var(--c-neon-rgb), 0.4);
+  box-shadow: 0 0 0 1px rgba(var(--c-neon-rgb), 0.12), 0 0 24px rgba(var(--c-neon-rgb), 0.06);
+}
+
+.pane__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.pane__title {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pane__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pane__body--view {
+  display: flex;
+  flex-direction: column;
+}
+
+.pane__scroll {
+  height: 100%;
+  overflow: auto;
+  padding: 16px;
+}
+
+.pane__error {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(var(--c-error-rgb), 0.35);
+  background: rgba(var(--c-error-rgb), 0.08);
+  color: var(--c-error);
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pane__error strong {
+  font-weight: 600;
+}
+
+.pane__alert {
+  margin: 10px;
+}
+
+.code-editor {
+  height: 100%;
+}
+
+.code-editor .cm-editor {
+  height: 100%;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.status-bar__error {
+  color: var(--c-error);
+}
+
+@media (max-width: 1100px) {
+  .tool-split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(360px, 45vh) minmax(480px, 1fr);
+    height: auto;
+  }
+  .tool-split--editor,
+  .tool-split--view {
+    grid-template-rows: minmax(520px, 75vh);
+  }
+}
