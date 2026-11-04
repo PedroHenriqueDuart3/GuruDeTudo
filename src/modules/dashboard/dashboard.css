@@ -840,6 +840,43 @@
   font-weight: 700;
 }
 
+.scene__forge-messy {
+  fill: var(--text-muted);
+}
+
+.scene__forge-kw {
+  fill: var(--syn-keyword, var(--c-violet));
+  font-weight: 700;
+}
+
+.scene__forge-rest {
+  fill: var(--text);
+}
+
+.scene__forge-river {
+  stroke: var(--c-violet);
+  stroke-width: 2;
+  stroke-dasharray: 4 5;
+  filter: drop-shadow(0 0 5px rgba(var(--c-violet-rgb), 0.7));
+}
+
+.scene__forge-dot {
+  fill: rgba(var(--c-success-rgb), 0.16);
+  stroke: var(--c-success);
+}
+
+.scene__forge-tick {
+  fill: none;
+  stroke: var(--c-success);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scene__forge-label {
+  text-anchor: start;
+}
+
 .dash-footer {
   display: flex;
   justify-content: space-between;

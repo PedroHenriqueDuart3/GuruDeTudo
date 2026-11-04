@@ -140,6 +140,52 @@
   color: var(--c-error);
 }
 
+/* Botão liga/desliga em forma de pílula, número do painel (1 → 2) e nome do painel */
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-subtle);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition: color var(--dur) ease, border-color var(--dur) ease, background var(--dur) ease;
+}
+
+.chip-toggle:hover {
+  color: var(--text);
+}
+
+.chip-toggle.is-on {
+  border-color: rgba(var(--c-violet-rgb), 0.55);
+  background: rgba(var(--c-violet-rgb), 0.1);
+  color: var(--text);
+}
+
+.chip-toggle.is-on svg {
+  color: var(--c-violet);
+}
+
+.pane-step {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(var(--c-violet-rgb), 0.16);
+  color: var(--c-violet);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.pane-name {
+  font-size: var(--fs-sm);
+}
+
 @media (max-width: 1100px) {
   .tool-split {
     grid-template-columns: minmax(0, 1fr);

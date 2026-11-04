@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS = {
   timezone: systemTz,
   sidebarCollapsed: false,
   sqlDialect: 'sqlserver',
+  forge: { qualifyDbo: true, renameTemp: true, stripBrackets: true },
 }
 
 /** Configurações do usuário — persistidas no localStorage (somente no navegador). */

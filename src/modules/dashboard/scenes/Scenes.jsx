@@ -297,3 +297,80 @@ export function DbScene({ progress }) {
     </Frame>
   )
 }
+
+/* ───────────────────────── SQL FORGE ───────────────────────── */
+
+const CW = 8.4 // largura de um caractere monoespaçado (0,6em) a 14px
+const RIO_X = 60
+const FORGE_LINES = [
+  { kw: 'SELECT', rest: 'O.Matricula', messy: 'select o.Matricula,', dx: 22, rot: -4 },
+  { kw: ',', rest: 'O.Cpf', messy: 'o.Cpf', dx: 70, rot: 3, comma: true },
+  { kw: 'FROM', rest: '#tORIGEM O', messy: 'from #Origem o', dx: -8, rot: 2 },
+  { kw: 'WHERE', rest: 'LEN(O.Cpf) <> 11', messy: 'where len(o.Cpf) <> 11', dx: 40, rot: -3 },
+  { kw: 'OR', rest: "O.Cpf LIKE '%[^0-9]%';", messy: "or o.Cpf like '%[^0-9]%'", dx: 4, rot: 4 },
+]
+
+function ForgeLine({ progress, line, i }) {
+  const appear = useWindow(progress, 0.04 + i * 0.05, 0.16 + i * 0.05)
+  const arrange = useWindow(progress, 0.28 + i * 0.03, 0.5 + i * 0.03)
+  const y = 84 + i * 40
+  // posição final: palavra-chave alinhada à direita no rio (coluna 6), conteúdo 2 colunas depois
+  const kwWidth = (line.comma ? 1 : line.kw.length) * CW
+  const kwEnd = RIO_X + 6 * CW
+  const finalX = line.comma ? kwEnd - CW : kwEnd - kwWidth
+  const x = useTransform(arrange, [0, 1], [RIO_X + line.dx - finalX, 0])
+  const rotate = useTransform(arrange, [0, 1], [line.rot, 0])
+  const messyOpacity = useTransform(arrange, [0, 0.5], [1, 0])
+  const cleanOpacity = useTransform(arrange, [0.4, 1], [0, 1])
+  return (
+    <motion.g style={{ opacity: appear }}>
+      <motion.text x={RIO_X + line.dx} y={y} className="scene__code scene__forge-messy" style={{ opacity: messyOpacity, rotate, transformOrigin: `${RIO_X}px ${y}px` }}>
+        {line.messy}
+      </motion.text>
+      <motion.g style={{ x, opacity: cleanOpacity }}>
+        <text x={finalX} y={y} className="scene__code">
+          <tspan className={line.comma ? 'scene__punct' : 'scene__forge-kw'}>{line.kw}</tspan>
+          <tspan x={kwEnd + CW} className="scene__forge-rest">
+            {line.rest}
+          </tspan>
+        </text>
+      </motion.g>
+    </motion.g>
+  )
+}
+
+const FORGE_CHECKS = ['rio alinhado', 'vírgula à esquerda', 'maiúsculas', '#tNOME', '; no fim']
+
+function ForgeCheck({ progress, label, i }) {
+  const w = useWindow(progress, 0.62 + i * 0.06, 0.72 + i * 0.06)
+  const x = useTransform(w, [0, 1], [16, 0])
+  return (
+    <motion.g style={{ opacity: w, x }}>
+      <circle cx={398} cy={96 + i * 34} r={8} className="scene__forge-dot" />
+      <path d={`M ${394} ${96 + i * 34} l 3 3 l 5 -6`} className="scene__forge-tick" />
+      <text x={414} y={100 + i * 34} className="scene__chip-l scene__forge-label">
+        {label}
+      </text>
+    </motion.g>
+  )
+}
+
+export function SqlForgeScene({ progress }) {
+  const river = useWindow(progress, 0.5, 0.72)
+  const riverX = RIO_X + 6 * CW + 3
+  return (
+    <Frame title="entrada.sql → padrão do Pedro">
+      <motion.line x1={riverX} x2={riverX} y1={62} y2={262} className="scene__forge-river" style={{ pathLength: river, opacity: river }} />
+      {FORGE_LINES.map((l, i) => (
+        <ForgeLine key={i} progress={progress} line={l} i={i} />
+      ))}
+      <line x1={374} x2={374} y1={70} y2={262} className="scene__track" />
+      {FORGE_CHECKS.map((c, i) => (
+        <ForgeCheck key={c} progress={progress} label={c} i={i} />
+      ))}
+      <text x={RIO_X} y={318} className="scene__chip-l">
+        o “rio”: palavras-chave terminam na mesma coluna
+      </text>
+    </Frame>
+  )
+}

@@ -1,4 +1,5 @@
 import {
+  mdiAnvil,
   mdiCodeBraces,
   mdiCogOutline,
   mdiDatabaseOutline,
@@ -51,6 +52,16 @@ export const TOOLS = [
     accent: 'neon',
     tagline: 'Transforme CREATE TABLE em diagramas ER interativos.',
     features: ['Parser SQL com AST', 'PK / FK / UNIQUE', 'Layout automático', 'SVG · PNG · DBML'],
+  },
+  {
+    id: 'sqlforge',
+    path: '/sql-forge',
+    title: 'SQL Forge',
+    short: 'T-SQL',
+    icon: mdiAnvil,
+    accent: 'violet',
+    tagline: 'Procedures, views e scripts T-SQL reescritos no padrão do Pedro.',
+    features: ['Rio de palavras-chave', 'Vírgula à esquerda', '"=" alinhados', 'Checklist do padrão'],
   },
 ]
 

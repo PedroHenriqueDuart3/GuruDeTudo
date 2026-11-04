@@ -1,0 +1,162 @@
+/* SQL Forge — dois campos (entrada → resultado) + relatório recolhível */
+
+.sf-options {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.sf-out .pane__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-out .pane__body > .code-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Resultado é somente leitura: sem cursor piscando */
+.sf-out .cm-content {
+  caret-color: transparent;
+}
+
+.sf-report {
+  position: absolute;
+  inset: auto 10px 10px 10px;
+  max-height: min(62%, 460px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(var(--c-violet-rgb), 0.35);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(var(--c-violet-rgb), 0.08);
+  z-index: 5;
+  overflow: hidden;
+}
+
+.sf-report header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.sf-report header svg {
+  color: var(--c-violet);
+}
+
+.sf-report header .subtle {
+  font-size: var(--fs-xs);
+}
+
+.sf-report__close {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.sf-report__close:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.sf-report__body {
+  overflow: auto;
+  padding: 4px 12px 12px;
+}
+
+.sf-report h4 {
+  margin: 12px 0 6px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.sf-report ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sf-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.sf-item svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.sf-item small {
+  display: block;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.sf-item--ok svg {
+  color: var(--c-success);
+}
+
+.sf-item--warn {
+  background: rgba(var(--c-warning-rgb), 0.08);
+}
+
+.sf-item--warn svg {
+  color: var(--c-warning);
+}
+
+.sf-item--na {
+  color: var(--text-muted);
+}
+
+.sf-item--na svg,
+.sf-item--ext svg {
+  color: var(--text-subtle);
+}
+
+.sf-count {
+  flex: none;
+  min-width: 34px;
+  color: var(--c-violet);
+  font-size: var(--fs-xs);
+  text-align: right;
+}
+
+.sf-note {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 6px;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+}
+
+.sf-note svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+@media (max-width: 760px) {
+  .sf-options {
+    order: 10;
+  }
+}

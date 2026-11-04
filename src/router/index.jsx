@@ -10,6 +10,7 @@ const JsonOrganizer = lazy(() => import('@modules/json/JsonOrganizerPage'))
 const CronManager = lazy(() => import('@modules/cron/CronManagerPage'))
 const XmlVisualizer = lazy(() => import('@modules/xml/XmlVisualizerPage'))
 const DbDiagram = lazy(() => import('@modules/dbdiagram/DbDiagramPage'))
+const SqlForge = lazy(() => import('@modules/sqlforge/SqlForgePage'))
 const Settings = lazy(() => import('@modules/settings/SettingsPage'))
 
 export const router = createBrowserRouter([
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: 'cron', element: <CronManager /> },
       { path: 'xml', element: <XmlVisualizer /> },
       { path: 'db-diagram', element: <DbDiagram /> },
+      { path: 'sql-forge', element: <SqlForge /> },
       { path: 'settings', element: <Settings /> },
       { path: '*', element: <NotFound /> },
     ],
