@@ -3,6 +3,7 @@ import {
   mdiCogOutline,
   mdiTimerCogOutline,
   mdiViewDashboardOutline,
+  mdiXml,
 } from '@mdi/js'
 
 /**
@@ -29,6 +30,16 @@ export const TOOLS = [
     accent: 'cyan',
     tagline: 'Biblioteca, linguagem natural e construtor visual de CRON.',
     features: ['5, 6 e 7 campos', 'Próximas execuções', 'Timezone', 'Explicação animada'],
+  },
+  {
+    id: 'xml',
+    path: '/xml',
+    title: 'XML Visualizer',
+    short: 'XML',
+    icon: mdiXml,
+    accent: 'violet',
+    tagline: 'Tags neon pareadas, hierarquia visível e árvore navegável.',
+    features: ['Pares de tags destacados', 'Guias de hierarquia', 'Árvore estrutural', 'Virtualização'],
   },
 ]
 

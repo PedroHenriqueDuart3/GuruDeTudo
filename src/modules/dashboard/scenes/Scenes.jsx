@@ -179,3 +179,66 @@ export function CronScene({ progress }) {
     </Frame>
   )
 }
+
+/* ───────────────────────── XML ───────────────────────── */
+
+const XML_LINES = [
+  { t: 'Colaborador', kind: 'open', d: 0 },
+  { t: 'Nome', kind: 'inline', d: 1, text: 'Pedro' },
+  { t: 'Empresa', kind: 'open', d: 1 },
+  { t: 'Nome', kind: 'inline', d: 2, text: 'JBS' },
+  { t: 'Empresa', kind: 'close', d: 1 },
+  { t: 'Colaborador', kind: 'close', d: 0 },
+]
+
+function XmlLine({ progress, line, i }) {
+  const w = useWindow(progress, 0.06 + i * 0.07, 0.2 + i * 0.07)
+  const x = useTransform(w, [0, 1], [-30, 0])
+  const pairStart = line.d === 0 ? 0.6 : line.d === 1 ? 0.7 : 0.8
+  const glow = useWindow(progress, pairStart, pairStart + 0.08)
+  const glowOpacity = useTransform(glow, [0, 1], [0, 1])
+  const y = 82 + i * 46
+  const lx = 60 + line.d * 40
+  const color = `var(--depth-${line.d})`
+  const label = line.kind === 'close' ? `</${line.t}>` : `<${line.t}>`
+  return (
+    <motion.g style={{ opacity: w, x }}>
+      <motion.rect x={lx - 10} y={y - 20} width={line.kind === 'inline' ? 230 : 170} height={30} rx={6} style={{ opacity: glowOpacity, fill: color }} className="scene__xml-glow" />
+      <text x={lx} y={y} className="scene__xml" style={{ fill: color }}>
+        {label}
+        {line.kind === 'inline' && (
+          <>
+            <tspan className="scene__xml-text">{line.text}</tspan>
+            <tspan>{`</${line.t}>`}</tspan>
+          </>
+        )}
+      </text>
+    </motion.g>
+  )
+}
+
+function Guide({ progress, d, from, to }) {
+  const w = useWindow(progress, 0.45 + d * 0.08, 0.6 + d * 0.08)
+  return (
+    <motion.line
+      x1={52 + d * 40}
+      x2={52 + d * 40}
+      y1={82 + from * 46 + 8}
+      y2={82 + to * 46 - 22}
+      className="scene__guide"
+      style={{ pathLength: w, stroke: `var(--depth-${d})` }}
+    />
+  )
+}
+
+export function XmlScene({ progress }) {
+  return (
+    <Frame title="exemplo.xml">
+      <Guide progress={progress} d={0} from={0} to={5} />
+      <Guide progress={progress} d={1} from={2} to={4} />
+      {XML_LINES.map((l, i) => (
+        <XmlLine key={i} progress={progress} line={l} i={i} />
+      ))}
+    </Frame>
+  )
+}

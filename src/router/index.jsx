@@ -8,6 +8,7 @@ import NotFound from '@/pages/NotFound'
 const Dashboard = lazy(() => import('@modules/dashboard/DashboardPage'))
 const JsonOrganizer = lazy(() => import('@modules/json/JsonOrganizerPage'))
 const CronManager = lazy(() => import('@modules/cron/CronManagerPage'))
+const XmlVisualizer = lazy(() => import('@modules/xml/XmlVisualizerPage'))
 const Settings = lazy(() => import('@modules/settings/SettingsPage'))
 
 export const router = createBrowserRouter([
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: 'json', element: <JsonOrganizer /> },
       { path: 'cron', element: <CronManager /> },
+      { path: 'xml', element: <XmlVisualizer /> },
       { path: 'settings', element: <Settings /> },
       { path: '*', element: <NotFound /> },
     ],

@@ -4,10 +4,10 @@ import ActivityPanel from './components/ActivityPanel'
 import Hero from './components/Hero'
 import ScrollSection from './components/ScrollSection'
 import ToolCard from './components/ToolCard'
-import { CronScene, JsonScene } from './scenes/Scenes'
+import { CronScene, JsonScene, XmlScene } from './scenes/Scenes'
 import './dashboard.css'
 
-const SCENES = { json: JsonScene, cron: CronScene }
+const SCENES = { json: JsonScene, cron: CronScene, xml: XmlScene }
 
 export default function DashboardPage() {
   return (
