@@ -1,4 +1,5 @@
-import { mdiCogOutline, mdiDeleteOutline, mdiMotionPlayOutline, mdiPaletteOutline, mdiRestore, mdiShieldLockOutline, mdiTextBoxEditOutline } from '@mdi/js'
+import { useMemo } from 'react'
+import { mdiCogOutline, mdiDeleteOutline, mdiMotionPlayOutline, mdiPaletteOutline, mdiRestore, mdiShieldLockOutline, mdiTextBoxEditOutline, mdiTimerCogOutline } from '@mdi/js'
 import Button from '@core/components/Button'
 import { useToast } from '@core/components/Toast'
 import { Card, Segmented, Select, Switch } from '@core/components/ui'
@@ -6,12 +7,20 @@ import { formatNumber } from '@core/utils'
 import PageHeader from '@layouts/components/PageHeader'
 import { useActivity } from '@/stores/activity'
 import { useSettings } from '@/stores/settings'
+import { FORMATS } from '@modules/cron/lib/cronSpec'
 import './settings.css'
 
 export default function SettingsPage() {
   const s = useSettings()
   const { history, favorites, clearHistory, clearFavorites } = useActivity()
   const toast = useToast()
+  const zones = useMemo(() => {
+    try {
+      return Intl.supportedValuesOf('timeZone')
+    } catch {
+      return [s.timezone]
+    }
+  }, [s.timezone])
 
   return (
     <div className="settings">
@@ -69,6 +78,11 @@ export default function SettingsPage() {
             ]}
           />
           <Switch checked={s.wrapLines} onChange={(v) => s.set({ wrapLines: v })} label="Quebra de linha automática" description="Linhas longas quebram em vez de rolar na horizontal." />
+        </Card>
+
+        <Card title="CRON" icon={mdiTimerCogOutline}>
+          <Select label="Formato padrão" value={s.cronFormat} onChange={(e) => s.set({ cronFormat: e.target.value })} options={Object.values(FORMATS).map((f) => ({ value: f.id, label: f.label }))} />
+          <Select label="Fuso horário" value={s.timezone} onChange={(e) => s.set({ timezone: e.target.value })} options={zones.map((z) => ({ value: z, label: z.replace(/_/g, ' ') }))} hint="Usado no cálculo das próximas execuções." />
         </Card>
 
         <Card title="Dados locais" icon={mdiShieldLockOutline}>

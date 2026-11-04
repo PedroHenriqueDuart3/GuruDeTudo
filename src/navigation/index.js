@@ -1,6 +1,7 @@
 import {
   mdiCodeBraces,
   mdiCogOutline,
+  mdiTimerCogOutline,
   mdiViewDashboardOutline,
 } from '@mdi/js'
 
@@ -18,6 +19,16 @@ export const TOOLS = [
     accent: 'neon',
     tagline: 'Formate, valide, navegue e visualize JSONs gigantes.',
     features: ['Editor com validação', 'Tree / Graph / Stats / Charts', 'JSONPath', 'Web Worker'],
+  },
+  {
+    id: 'cron',
+    path: '/cron',
+    title: 'Cron Manager',
+    short: 'CRON',
+    icon: mdiTimerCogOutline,
+    accent: 'cyan',
+    tagline: 'Biblioteca, linguagem natural e construtor visual de CRON.',
+    features: ['5, 6 e 7 campos', 'Próximas execuções', 'Timezone', 'Explicação animada'],
   },
 ]
 

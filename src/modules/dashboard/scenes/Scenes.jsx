@@ -109,3 +109,73 @@ export function JsonScene({ progress }) {
     </Frame>
   )
 }
+
+/* ───────────────────────── CRON ───────────────────────── */
+
+const CRON_FIELDS = [
+  { v: '0', l: 'seg' },
+  { v: '30', l: 'min' },
+  { v: '9', l: 'hora' },
+  { v: '*', l: 'dia' },
+  { v: '*', l: 'mês' },
+  { v: '1-5', l: 'sem' },
+]
+
+function CronChip({ progress, f, i }) {
+  const w = useWindow(progress, 0.08 + i * 0.07, 0.2 + i * 0.07)
+  const y = useTransform(w, [0, 1], [-40, 0])
+  const glow = useWindow(progress, 0.55 + i * 0.05, 0.62 + i * 0.05)
+  const glowOpacity = useTransform(glow, [0, 0.5, 1], [0, 1, 0.3])
+  const x = 40 + i * 82
+  return (
+    <motion.g style={{ opacity: w, y }}>
+      <rect x={x} y={220} width={70} height={54} rx={8} className="scene__chip" />
+      <motion.rect x={x} y={220} width={70} height={54} rx={8} className="scene__chip-glow" style={{ opacity: glowOpacity }} />
+      <text x={x + 35} y={252} textAnchor="middle" className="scene__chip-v">
+        {f.v}
+      </text>
+      <text x={x + 35} y={268} textAnchor="middle" className="scene__chip-l">
+        {f.l}
+      </text>
+    </motion.g>
+  )
+}
+
+function Particle({ progress, i }) {
+  const start = 0.3 + i * 0.06
+  const w = useWindow(progress, start, start + 0.35)
+  const x = useTransform(w, [0, 1], [40, 110 + i * 75])
+  const opacity = useTransform(w, [0, 0.15, 1], [0, 1, 1])
+  return <motion.circle cx={0} cy={330} r={5} className="scene__particle" style={{ x, opacity }} />
+}
+
+export function CronScene({ progress }) {
+  // relógio: 08:50 → 09:30 conforme o scroll
+  const minutes = useTransform(progress, [0, 1], [8 * 60 + 50, 9 * 60 + 30])
+  const clock = useTransform(minutes, (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`)
+  const ring = useTransform(progress, [0, 1], [0, 1])
+  return (
+    <Frame title="exemplo · 0 30 9 * * 1-5">
+      <motion.circle cx={W / 2} cy={112} r={54} className="scene__ring-bg" />
+      <motion.circle cx={W / 2} cy={112} r={54} className="scene__ring" style={{ pathLength: ring, rotate: -90, transformOrigin: `${W / 2}px 112px` }} />
+      <motion.text x={W / 2} y={124} textAnchor="middle" className="scene__clock">
+        {clock}
+      </motion.text>
+      <text x={W / 2} y={196} textAnchor="middle" className="scene__clock-sub">
+        próxima execução · 09:30
+      </text>
+      {CRON_FIELDS.map((f, i) => (
+        <CronChip key={i} progress={progress} f={f} i={i} />
+      ))}
+      <line x1={40} x2={W - 40} y1={330} y2={330} className="scene__track" />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <Particle key={i} progress={progress} i={i} />
+      ))}
+      {['seg', 'ter', 'qua', 'qui', 'sex'].map((d, i) => (
+        <text key={d} x={110 + i * 75} y={355} textAnchor="middle" className="scene__chip-l">
+          {d}
+        </text>
+      ))}
+    </Frame>
+  )
+}
