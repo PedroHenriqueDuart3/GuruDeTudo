@@ -2293,3 +2293,16 @@ export function formatTsql(input, options = {}) {
     stats: { ...ctx.stats, inputLines: src ? src.split('\n').length : 0, outputLines: outLines.length, tokens: tokens.length, ms },
   }
 }
+
+/* ───────────────────────── reaproveitamento (Model Generator) ───────────────────────── */
+
+/** Lexer + normalização + árvore de instruções, sem reescrever nada. */
+export function parseTsql(input) {
+  const ctx = new Ctx({ qualifyDbo: false, renameTemp: false, stripBrackets: true })
+  const { tokens } = lex(input.replace(/\r\n?/g, '\n'))
+  normalize(tokens, ctx)
+  const nodes = new Parser(tokens, ctx).script()
+  return { nodes, tokens, warnings: ctx.warnings }
+}
+
+export const internals = { isW, splitByComma, splitJoins, splitClauses, splitSetOps, selectClauseAt, findTopWord, findTop, matchParen, cteAt, readName, walkLists }
