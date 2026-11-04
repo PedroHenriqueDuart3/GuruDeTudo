@@ -94,7 +94,7 @@ export function toJSON(schema, positions) {
 
 /* ───────── SVG / PNG ───────── */
 
-const STYLE_PROPS = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'opacity', 'fill-opacity', 'stroke-opacity', 'font-family', 'font-size', 'font-weight', 'letter-spacing']
+const STYLE_PROPS = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'opacity', 'fill-opacity', 'stroke-opacity', 'stop-color', 'stop-opacity', 'font-family', 'font-size', 'font-weight', 'letter-spacing']
 
 /**
  * Clona o SVG do diagrama "achatando" os estilos computados (as variáveis CSS do tema
