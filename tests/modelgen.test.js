@@ -116,6 +116,7 @@ test('todas as linguagens e estilos geram arquivos para as duas fontes', () => {
     typescript: ['interface', 'type', 'class', 'zod'],
     go: ['struct', 'gorm'],
     json: ['example', 'schema'],
+    sql: ['tables', 'procedure', 'script'],
   }
   for (const [language, styles] of Object.entries(langs))
     for (const style of styles)
@@ -168,4 +169,39 @@ test('SQL → JSON Schema: tipos, nulos, maxLength, multipleOf, required e forma
   const fromJson = JSON.parse(generateModels(SAMPLE_JSON, { language: 'json', style: 'schema' }).files[0].content)
   assert.equal(fromJson.properties.pedidos.items.$ref, '#/$defs/Pedido')
   assert.ok(fromJson.$defs.Pedido && fromJson.$defs.Item)
+})
+
+test('JSON → tabelas: raiz com PK natural, objeto 1:1 achatado, listas viram tabelas filhas com FK', async () => {
+  const { formatTsql } = await import('../src/modules/sqlforge/lib/formatter.js')
+  const sql = generateModels(SAMPLE_JSON, { language: 'sql', style: 'tables' }).files[0].content
+  assert.ok(sql.includes('CREATE TABLE dbo.Modelo ( Id '))
+  assert.match(sql, /, EnderecoRua +VARCHAR\(20\) +NOT NULL/)
+  assert.match(sql, /, Salario +DECIMAL\(18, 2\) +NOT NULL/)
+  assert.match(sql, /, Email +NVARCHAR\(MAX\) +NULL -- TODO: sempre nulo no exemplo/)
+  assert.ok(sql.includes('CREATE TABLE dbo.ModeloTelefone ( CodigoModeloTelefone INT'))
+  assert.ok(sql.includes('FOREIGN KEY (IdModelo) REFERENCES dbo.Modelo (Id)'))
+  assert.ok(sql.includes('FOREIGN KEY (CodigoPedido) REFERENCES dbo.Pedido (Codigo)'))
+  assert.equal(formatTsql(sql).output, sql, 'já sai no padrão do SQL Forge')
+})
+
+test('JSON → procedure de carga: OPENJSON por nível e MERGE + #tMAPA quando a chave do pai é IDENTITY', () => {
+  const json = '[{"nome":"Pedido A","itens":[{"sku":"X","tags":["a"]}]}]'
+  const sql = generateModels(json, { language: 'sql', style: 'procedure' }).files[0].content
+  assert.ok(sql.includes('CREATE OR ALTER PROCEDURE dbo.pc_CarregaModelo\n( @Json NVARCHAR(MAX)\n)'))
+  assert.ok(sql.includes('SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;\n  SET NOCOUNT ON;'))
+  assert.ok(sql.includes('DROP TABLE IF EXISTS #tMAPAMODELO;'))
+  assert.ok(sql.includes('     MERGE dbo.Modelo AS Destino'))
+  assert.ok(sql.includes('    OUTPUT inserted.CodigoModelo'))
+  assert.ok(sql.includes('INNER JOIN #tMAPAITEM M ON M.ChaveJson = CONCAT(R0.[key], \'/\', R1.[key])'))
+  assert.ok(sql.includes('CROSS APPLY OPENJSON(R1.value, \'$.tags\') R2'))
+  assert.ok(!/XACT_ABORT/.test(sql))
+})
+
+test('SQL → procedure de carga: uma por tabela, sem IDENTITY, colunas calculadas e rowversion', () => {
+  const sql = generateModels(SAMPLE_SQL, { language: 'sql', style: 'procedure' }).files[0].content
+  assert.ok(sql.includes('CREATE OR ALTER PROCEDURE dbo.pc_CarregaRiscos'))
+  const riscos = sql.slice(sql.indexOf('pc_CarregaRiscos'), sql.indexOf('pc_CarregaNivelrisco'))
+  assert.ok(riscos.includes("CAST(JSON_VALUE(R0.value, '$.codcoligada') AS SMALLINT)"))
+  assert.ok(riscos.includes("CONVERT(DATETIME, JSON_VALUE(R0.value, '$.datacriacao'), 127)"))
+  assert.ok(!riscos.includes('RECVERSAO') && !riscos.includes('VALORANUAL'))
 })

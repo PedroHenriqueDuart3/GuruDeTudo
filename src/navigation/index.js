@@ -71,8 +71,8 @@ export const TOOLS = [
     short: 'MODELS',
     icon: mdiCubeOutline,
     accent: 'cyan',
-    tagline: 'Tabelas, procedures e JSON viram classes em C#, Java, Kotlin, Python, TypeScript e Go, ou o design do JSON.',
-    features: ['6 linguagens + JSON', 'EF Core · JPA · Pydantic · Zod · GORM', 'SQL → JSON de exemplo e JSON Schema', 'Resultado de procedure tipado'],
+    tagline: 'Tabelas, procedures e JSON viram classes, o design do JSON ou tabelas e procedures SQL.',
+    features: ['6 linguagens + JSON + SQL', 'EF Core · JPA · Pydantic · Zod · GORM', 'JSON → tabelas e procedure de carga', 'SQL → JSON de exemplo e JSON Schema'],
   },
 ]
 

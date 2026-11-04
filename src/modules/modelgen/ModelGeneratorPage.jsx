@@ -127,7 +127,7 @@ export default function ModelGeneratorPage() {
         icon={mdiCubeOutline}
         eyebrow="Módulo · SQL / JSON → classes"
         title="Model Generator"
-        description="Cole CREATE TABLEs, uma procedure ou um JSON. Saem as models em C#, Java, Kotlin, Python, TypeScript ou Go, ou o design do JSON (documento de exemplo ou JSON Schema), com tipos, nulidade, chaves e os nomes originais mapeados."
+        description="Cole CREATE TABLEs, uma procedure ou um JSON. Saem as models em C#, Java, Kotlin, Python, TypeScript ou Go, o design do JSON (exemplo ou JSON Schema) ou o SQL: tabelas e procedure de carga a partir de um JSON, já no padrão do Pedro."
       />
 
       <Toolbar className="tool-toolbar">
@@ -189,7 +189,7 @@ export default function ModelGeneratorPage() {
             ))}
           </select>
         </label>
-        {!['python', 'typescript', 'json'].includes(lang) && (
+        {!['python', 'typescript', 'json', 'sql'].includes(lang) && (
           <label className="mg-field">
             <span>{lang === 'csharp' ? 'Namespace' : 'Pacote'}</span>
             <input className="input mono mg-ns" value={namespace} spellCheck={false} onChange={(e) => setCfg({ namespaces: { ...cfg.namespaces, [lang]: e.target.value } })} placeholder={meta.defaultNamespace} />
@@ -202,7 +202,7 @@ export default function ModelGeneratorPage() {
             <option value="keep">manter os originais</option>
           </select>
         </label>
-        {!(lang === 'json' && style === 'example') && (
+        {!(lang === 'json' && style === 'example') && lang !== 'sql' && (
           <Chip on={cfg.comments} onClick={() => setCfg({ comments: !cfg.comments })} title={lang === 'json' ? 'description com o tipo SQL e as restrições de cada campo' : 'Comentário com o tipo SQL e as restrições de cada campo'}>
             {lang === 'json' ? 'descriptions' : 'comentários'}
           </Chip>
@@ -283,7 +283,7 @@ export default function ModelGeneratorPage() {
             {result?.error && <div className="pane__error">Falha ao gerar: {result.error}</div>}
             <div className="pane__body">
               {current ? (
-                <CodeEditor key={lang} value={current.content} language={outLang} readOnly fontSize={settings.editorFontSize} wrap={settings.wrapLines} indent={lang === 'typescript' || lang === 'json' ? 2 : 4} ariaLabel={`Código ${meta.label} gerado (somente leitura)`} />
+                <CodeEditor key={lang} value={current.content} language={outLang} readOnly fontSize={settings.editorFontSize} wrap={settings.wrapLines} indent={['typescript', 'json', 'sql'].includes(lang) ? 2 : 4} ariaLabel={`Código ${meta.label} gerado (somente leitura)`} />
               ) : (
                 <EmptyState icon={mdiCubeOutline} title="Nenhuma classe ainda" description="Cole CREATE TABLEs, uma procedure com SELECT ou um JSON no campo de entrada." />
               )}

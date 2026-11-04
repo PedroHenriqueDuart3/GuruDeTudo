@@ -26,13 +26,14 @@ export const LANGUAGES = {
   typescript: { label: 'TypeScript', styles: { interface: 'interface', type: 'type', class: 'class', zod: 'Zod schema' }, defaultNamespace: '', ext: 'ts' },
   go: { label: 'Go', styles: { struct: 'struct (json/db)', gorm: 'GORM' }, defaultNamespace: 'modelos', ext: 'go' },
   json: { label: 'JSON', styles: { example: 'Documento de exemplo', schema: 'JSON Schema' }, defaultNamespace: '', ext: 'json' },
+  sql: { label: 'SQL', styles: { tables: 'CREATE TABLE', procedure: 'Procedure de carga (OPENJSON)', script: 'Tabelas + procedure' }, defaultNamespace: '', ext: 'sql' },
 }
 
 const NUMERIC = new Set(['uint8', 'int16', 'int32', 'int64', 'decimal', 'float32', 'float64'])
 
 /* ───────── preparação: nomes por convenção ───────── */
 
-function prepare(model, lang, o) {
+export function prepare(model, lang, o) {
   const keep = o.naming === 'keep'
   const classNamer = uniqueNamer()
   const classConv = lang === 'go' ? toGoName : toPascal
@@ -65,7 +66,7 @@ function prepare(model, lang, o) {
 }
 
 /** Comentário descritivo do campo: tipo SQL e restrições, ou a origem no JSON. */
-function meta(f) {
+export function meta(f) {
   const parts = []
   if (f.type.sql) parts.push(f.type.sql)
   if (f.pk) parts.push('PK')
@@ -77,7 +78,7 @@ function meta(f) {
   return parts.join(' · ')
 }
 
-const todo = (f) => (f.type.base === 'unknown' || f.note ? f.note ?? 'tipo não identificado' : null)
+export const todo = (f) => (f.type.base === 'unknown' || f.note ? f.note ?? 'tipo não identificado' : null)
 
 function header(model, c, mark = '//') {
   return `${mark} Gerado pelo DevTools Workspace a partir de ${c.origin ?? c.name}.`
