@@ -32,7 +32,7 @@ import './modelgen.css'
 
 const INPUT_LANG = { sql: sqlLang({ dialect: MSSQL, upperCaseKeywords: true }), json: jsonLang() }
 
-const DEFAULTS = { language: 'csharp', styles: {}, namespaces: {}, naming: 'convention', comments: true, detectDates: true, rootName: 'Modelo' }
+const DEFAULTS = { language: 'csharp', styles: {}, namespaces: {}, naming: 'convention', comments: true, detectDates: true, rootName: 'Modelo', rootList: false, nullAsNull: false }
 
 export default function ModelGeneratorPage() {
   const toast = useToast()
@@ -57,11 +57,11 @@ export default function ModelGeneratorPage() {
   const result = useMemo(() => {
     if (!debounced.trim()) return null
     try {
-      return generateModels(debounced, { source: detected, language: lang, style, namespace, naming: cfg.naming, comments: cfg.comments, detectDates: cfg.detectDates, rootName: cfg.rootName || 'Modelo' })
+      return generateModels(debounced, { source: detected, language: lang, style, namespace, naming: cfg.naming, comments: cfg.comments, detectDates: cfg.detectDates, rootName: cfg.rootName || 'Modelo', rootList: cfg.rootList, nullAsNull: cfg.nullAsNull })
     } catch (err) {
       return { error: err.message ?? String(err), files: [], classes: [], warnings: [], stats: { classes: 0, fields: 0, ms: 0 } }
     }
-  }, [debounced, detected, lang, style, namespace, cfg.naming, cfg.comments, cfg.detectDates, cfg.rootName])
+  }, [debounced, detected, lang, style, namespace, cfg.naming, cfg.comments, cfg.detectDates, cfg.rootName, cfg.rootList, cfg.nullAsNull])
 
   useEffect(() => setActive(0), [lang])
 
@@ -127,7 +127,7 @@ export default function ModelGeneratorPage() {
         icon={mdiCubeOutline}
         eyebrow="Módulo · SQL / JSON → classes"
         title="Model Generator"
-        description="Cole CREATE TABLEs, uma procedure ou um JSON. Saem as models em C#, Java, Kotlin, Python, TypeScript ou Go, com tipos, nulidade, chaves e mapeamento para os nomes originais."
+        description="Cole CREATE TABLEs, uma procedure ou um JSON. Saem as models em C#, Java, Kotlin, Python, TypeScript ou Go, ou o design do JSON (documento de exemplo ou JSON Schema), com tipos, nulidade, chaves e os nomes originais mapeados."
       />
 
       <Toolbar className="tool-toolbar">
@@ -189,7 +189,7 @@ export default function ModelGeneratorPage() {
             ))}
           </select>
         </label>
-        {lang !== 'python' && lang !== 'typescript' && (
+        {!['python', 'typescript', 'json'].includes(lang) && (
           <label className="mg-field">
             <span>{lang === 'csharp' ? 'Namespace' : 'Pacote'}</span>
             <input className="input mono mg-ns" value={namespace} spellCheck={false} onChange={(e) => setCfg({ namespaces: { ...cfg.namespaces, [lang]: e.target.value } })} placeholder={meta.defaultNamespace} />
@@ -202,9 +202,21 @@ export default function ModelGeneratorPage() {
             <option value="keep">manter os originais</option>
           </select>
         </label>
-        <Chip on={cfg.comments} onClick={() => setCfg({ comments: !cfg.comments })} title="Comentário com o tipo SQL e as restrições de cada campo">
-          comentários
-        </Chip>
+        {!(lang === 'json' && style === 'example') && (
+          <Chip on={cfg.comments} onClick={() => setCfg({ comments: !cfg.comments })} title={lang === 'json' ? 'description com o tipo SQL e as restrições de cada campo' : 'Comentário com o tipo SQL e as restrições de cada campo'}>
+            {lang === 'json' ? 'descriptions' : 'comentários'}
+          </Chip>
+        )}
+        {lang === 'json' && (
+          <Chip on={cfg.rootList} onClick={() => setCfg({ rootList: !cfg.rootList })} title="O documento é uma lista de registros: [ { … } ]">
+            lista na raiz
+          </Chip>
+        )}
+        {lang === 'json' && style === 'example' && (
+          <Chip on={cfg.nullAsNull} onClick={() => setCfg({ nullAsNull: !cfg.nullAsNull })} title="Campos anuláveis aparecem como null em vez de um valor de exemplo do tipo">
+            anuláveis como null
+          </Chip>
+        )}
         {detected === 'json' && (
           <>
             <label className="mg-field">
@@ -271,7 +283,7 @@ export default function ModelGeneratorPage() {
             {result?.error && <div className="pane__error">Falha ao gerar: {result.error}</div>}
             <div className="pane__body">
               {current ? (
-                <CodeEditor key={lang} value={current.content} language={outLang} readOnly fontSize={settings.editorFontSize} wrap={settings.wrapLines} indent={lang === 'typescript' ? 2 : 4} ariaLabel={`Código ${meta.label} gerado (somente leitura)`} />
+                <CodeEditor key={lang} value={current.content} language={outLang} readOnly fontSize={settings.editorFontSize} wrap={settings.wrapLines} indent={lang === 'typescript' || lang === 'json' ? 2 : 4} ariaLabel={`Código ${meta.label} gerado (somente leitura)`} />
               ) : (
                 <EmptyState icon={mdiCubeOutline} title="Nenhuma classe ainda" description="Cole CREATE TABLEs, uma procedure com SELECT ou um JSON no campo de entrada." />
               )}

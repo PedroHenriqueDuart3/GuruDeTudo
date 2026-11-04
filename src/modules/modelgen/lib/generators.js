@@ -25,6 +25,7 @@ export const LANGUAGES = {
   python: { label: 'Python', styles: { dataclass: 'dataclass', pydantic: 'Pydantic v2', sqlalchemy: 'SQLAlchemy 2.0' }, defaultNamespace: '', ext: 'py' },
   typescript: { label: 'TypeScript', styles: { interface: 'interface', type: 'type', class: 'class', zod: 'Zod schema' }, defaultNamespace: '', ext: 'ts' },
   go: { label: 'Go', styles: { struct: 'struct (json/db)', gorm: 'GORM' }, defaultNamespace: 'modelos', ext: 'go' },
+  json: { label: 'JSON', styles: { example: 'Documento de exemplo', schema: 'JSON Schema' }, defaultNamespace: '', ext: 'json' },
 }
 
 const NUMERIC = new Set(['uint8', 'int16', 'int32', 'int64', 'decimal', 'float32', 'float64'])
@@ -47,6 +48,7 @@ function prepare(model, lang, o) {
     kotlin: toCamel,
     python: toSnake,
     typescript: model.source === 'json' ? (n) => n : toCamel,
+    json: model.source === 'json' ? (n) => n : toCamel,
     go: toGoName,
   }[lang]
   for (const c of classes) {
@@ -55,7 +57,7 @@ function prepare(model, lang, o) {
       let n = keep && lang !== 'go' ? toSafe(f.name) : fieldConv(f.name)
       if (lang === 'go' && keep) n = toGoName(f.name)
       if (lang === 'csharp' && n === c.className) n = `${n}Valor`
-      if (lang !== 'typescript') n = safeIdent(n, lang)
+      if (lang !== 'typescript' && lang !== 'json') n = safeIdent(n, lang)
       return { ...f, prop: namer(n), source: f.jsonName ?? f.name, ref: f.ref ? byOriginal.get(f.ref) ?? f.ref : null }
     })
   }
@@ -588,7 +590,142 @@ function go(model, o) {
   return [{ name: 'models.go', content: `// Gerado pelo DevTools Workspace (${classes.length} struct${classes.length === 1 ? '' : 's'}).\npackage ${pkg}\n\n${importBlock}${blocks.join('\n\n')}\n` }]
 }
 
-const GENERATORS = { csharp, java, kotlin, python, typescript, go }
+/* ───────────────────────── JSON (design do documento) ───────────────────────── */
+
+/** Número escrito como texto (mantém as casas decimais: 0.00). */
+class Raw {
+  constructor(text) {
+    this.text = text
+  }
+}
+
+function stringify(v, ind = '') {
+  if (v instanceof Raw) return v.text
+  const inner = `${ind}  `
+  if (Array.isArray(v)) {
+    if (!v.length) return '[]'
+    const flat = v.every((x) => x === null || typeof x !== 'object' || x instanceof Raw)
+    const one = `[${v.map((x) => stringify(x, inner)).join(', ')}]`
+    if (flat && one.length <= 72) return one
+    return `[\n${v.map((x) => inner + stringify(x, inner)).join(',\n')}\n${ind}]`
+  }
+  if (v && typeof v === 'object') {
+    const e = Object.entries(v)
+    return e.length ? `{\n${e.map(([k, x]) => `${inner}${JSON.stringify(k)}: ${stringify(x, inner)}`).join(',\n')}\n${ind}}` : '{}'
+  }
+  return JSON.stringify(v)
+}
+
+const INT_RANGE = { uint8: [0, 255], int16: [-32768, 32767], int32: [-2147483648, 2147483647] }
+
+function json(model, o) {
+  const classes = prepare(model, 'json', o)
+  const byName = new Map(classes.map((c) => [c.className, c]))
+  const today = (o.now ?? new Date()).toISOString().slice(0, 10)
+
+  // valores no formato do Swagger: mostram o tipo de cada campo, não são dados reais
+  const sample = (f, seen) => {
+    if (f.nullable && o.nullAsNull) return null
+    let v
+    if (f.ref) {
+      const c = byName.get(f.ref)
+      v = c && !seen.has(c.className) ? doc(c, new Set([...seen, c.className])) : null
+    } else {
+      const t = f.type
+      switch (t.base) {
+        case 'bool':
+          v = true
+          break
+        case 'uint8':
+        case 'int16':
+        case 'int32':
+        case 'int64':
+          v = 0
+          break
+        case 'decimal':
+          v = new Raw((0).toFixed(t.scale ?? 2))
+          break
+        case 'float32':
+        case 'float64':
+          v = new Raw('0.0')
+          break
+        case 'string':
+          v = t.length && t.length < 6 ? 'string'.slice(0, t.length) : 'string'
+          break
+        case 'date':
+          v = today
+          break
+        case 'datetime':
+          v = `${today}T00:00:00`
+          break
+        case 'datetimeoffset':
+          v = `${today}T00:00:00Z`
+          break
+        case 'time':
+          v = '00:00:00'
+          break
+        case 'guid':
+          v = '00000000-0000-0000-0000-000000000000'
+          break
+        case 'bytes':
+          v = ''
+          break
+        default:
+          v = null
+      }
+    }
+    return f.list ? (v === null ? [] : [v]) : v
+  }
+  const doc = (c, seen) => Object.fromEntries(c.fields.map((f) => [f.prop, sample(f, seen)]))
+
+  const schemaOf = (f, defs) => {
+    const s = {}
+    const t = f.type
+    if (f.ref) {
+      const c = byName.get(f.ref)
+      if (c && !defs.has(c.className)) {
+        defs.set(c.className, null)
+        defs.set(c.className, objectSchema(c, defs))
+      }
+      Object.assign(s, { $ref: `#/$defs/${f.ref}` })
+    } else {
+      const type = { bool: 'boolean', uint8: 'integer', int16: 'integer', int32: 'integer', int64: 'integer', decimal: 'number', float32: 'number', float64: 'number' }[t.base] ?? (['object', 'unknown'].includes(t.base) ? null : 'string')
+      if (type) s.type = type
+      if (INT_RANGE[t.base]) [s.minimum, s.maximum] = INT_RANGE[t.base]
+      if (t.base === 'decimal' && t.scale) s.multipleOf = new Raw((10 ** -t.scale).toFixed(t.scale))
+      if (t.base === 'string' && t.length) s.maxLength = t.length
+      if (t.base === 'string' && t.fixed && t.length) s.minLength = t.length
+      const format = { date: 'date', datetime: 'date-time', datetimeoffset: 'date-time', time: 'time', guid: 'uuid' }[t.base]
+      if (format) s.format = format
+      if (t.base === 'bytes') s.contentEncoding = 'base64'
+    }
+    let out = f.list ? { type: 'array', items: s } : s
+    if (f.nullable) out = out.type && !out.$ref ? { ...out, type: [out.type, 'null'] } : { anyOf: [out, { type: 'null' }] }
+    const d = [o.comments ? meta(f) : '', todo(f) ? `TODO: ${todo(f)}` : ''].filter(Boolean).join(' · ')
+    return d ? { ...out, description: d } : out
+  }
+  const objectSchema = (c, defs) => {
+    const props = Object.fromEntries(c.fields.map((f) => [f.prop, schemaOf(f, defs)]))
+    const required = c.fields.filter((f) => !f.nullable).map((f) => f.prop)
+    return { type: 'object', properties: props, ...(required.length ? { required } : {}), additionalProperties: false }
+  }
+
+  return classes.map((c) => {
+    if (o.style === 'schema') {
+      const defs = new Map([[c.className, null]])
+      const body = objectSchema(c, defs)
+      defs.delete(c.className)
+      const root = o.rootList ? { type: 'array', items: body } : body
+      const schema = { $schema: 'https://json-schema.org/draft/2020-12/schema', title: c.className, description: c.origin ?? c.name, ...root }
+      if (defs.size) schema.$defs = Object.fromEntries(defs)
+      return { name: `${c.className}.schema.json`, content: `${stringify(schema)}\n` }
+    }
+    const d = doc(c, new Set([c.className]))
+    return { name: `${c.className}.json`, content: `${stringify(o.rootList ? [d] : d)}\n` }
+  })
+}
+
+const GENERATORS = { csharp, java, kotlin, python, typescript, go, json }
 
 export function generate(model, language, options = {}) {
   const lang = LANGUAGES[language] ? language : 'csharp'

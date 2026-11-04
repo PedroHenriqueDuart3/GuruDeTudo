@@ -4,6 +4,7 @@
  * palavras-chave, tipos, textos, números, comentários e anotações/atributos.
  */
 import { StreamLanguage } from '@codemirror/language'
+import { json as jsonLang } from '@codemirror/lang-json'
 
 const set = (s) => new Set(s.split(' '))
 
@@ -85,6 +86,7 @@ function mode(cfg) {
 const cache = new Map()
 
 export async function loadLanguage(lang) {
+  if (lang === 'json') return jsonLang()
   if (!CONFIG[lang]) return []
   if (!cache.has(lang)) cache.set(lang, StreamLanguage.define(mode(CONFIG[lang])))
   return cache.get(lang)

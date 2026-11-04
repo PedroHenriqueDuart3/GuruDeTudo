@@ -115,6 +115,7 @@ test('todas as linguagens e estilos geram arquivos para as duas fontes', () => {
     python: ['dataclass', 'pydantic', 'sqlalchemy'],
     typescript: ['interface', 'type', 'class', 'zod'],
     go: ['struct', 'gorm'],
+    json: ['example', 'schema'],
   }
   for (const [language, styles] of Object.entries(langs))
     for (const style of styles)
@@ -134,4 +135,37 @@ test('zip: CRC32 correto e um arquivo por classe', () => {
   const v = new DataView(z.buffer)
   assert.equal(v.getUint32(0, true), 0x04034b50)
   assert.equal(v.getUint16(z.length - 22 + 10, true), 2)
+})
+
+test('SQL → JSON de exemplo: um documento por tabela, decimais com a escala e lista na raiz', () => {
+  const now = new Date('2026-11-04T12:00:00Z')
+  const files = generateModels(SAMPLE_SQL, { language: 'json', style: 'example', now }).files
+  assert.deepEqual(
+    files.map((f) => f.name),
+    ['Agente.json', 'Riscos.json', 'Nivelrisco.json', 'ListaRiscosResultado.json'],
+  )
+  const riscos = files.find((f) => f.name === 'Riscos.json').content
+  assert.ok(riscos.includes('"valor": 0.00'))
+  assert.ok(riscos.includes('"datacriacao": "2026-11-04T00:00:00"'))
+  assert.deepEqual(Object.keys(JSON.parse(riscos)).slice(0, 3), ['codcoligada', 'coditemrisco', 'codnivelrisco'])
+  const list = generateModels(SAMPLE_SQL, { language: 'json', style: 'example', rootList: true, nullAsNull: true, naming: 'keep', now }).files[1].content
+  const parsed = JSON.parse(list)
+  assert.ok(Array.isArray(parsed))
+  assert.equal(parsed[0].DESCRICAO, null)
+  assert.equal(parsed[0].CODITEMRISCO, 'string')
+})
+
+test('SQL → JSON Schema: tipos, nulos, maxLength, multipleOf, required e formatos', () => {
+  const s = JSON.parse(generateModels(SAMPLE_SQL, { language: 'json', style: 'schema' }).files.find((f) => f.name === 'Riscos.schema.json').content)
+  assert.equal(s.$schema, 'https://json-schema.org/draft/2020-12/schema')
+  assert.deepEqual(s.properties.coditemrisco.type, 'string')
+  assert.equal(s.properties.coditemrisco.maxLength, 10)
+  assert.deepEqual(s.properties.descricao.type, ['string', 'null'])
+  assert.equal(s.properties.valor.multipleOf, 0.01)
+  assert.equal(s.properties.datacriacao.format, 'date-time')
+  assert.deepEqual([s.properties.codcoligada.minimum, s.properties.codcoligada.maximum], [-32768, 32767])
+  assert.ok(s.required.includes('codcoligada') && !s.required.includes('descricao'))
+  const fromJson = JSON.parse(generateModels(SAMPLE_JSON, { language: 'json', style: 'schema' }).files[0].content)
+  assert.equal(fromJson.properties.pedidos.items.$ref, '#/$defs/Pedido')
+  assert.ok(fromJson.$defs.Pedido && fromJson.$defs.Item)
 })
