@@ -69,11 +69,13 @@ export function jsonToModel(text, { rootName = 'Modelo', detectDates = true } = 
     if (arrays.length || objects.length) return { type: { base: 'object' }, nullable, note: 'valores de formatos diferentes no exemplo' }
     let base = null
     let maxLen = 0
+    let maxScale = 0
     for (const v of nonNull) {
       base = mergeBase(base, primitive(v))
       if (typeof v === 'string') maxLen = Math.max(maxLen, v.length)
+      if (typeof v === 'number' && !Number.isInteger(v)) maxScale = Math.max(maxScale, (String(v).split('.')[1] ?? '').replace(/e.*$/i, '').length)
     }
-    return { type: { base: base ?? 'unknown' }, nullable, sampleMaxLength: maxLen || undefined }
+    return { type: { base: base ?? 'unknown' }, nullable, sampleMaxLength: maxLen || undefined, sampleScale: maxScale || undefined }
   }
 
   function classFor(objects, hint) {

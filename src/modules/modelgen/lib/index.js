@@ -1,8 +1,10 @@
 /**
- * Model Generator: SQL (T-SQL) ou JSON → classes em C#, Java, Kotlin, Python, TypeScript e Go.
+ * Model Generator: SQL (T-SQL) ou JSON → classes em C#, Java, Kotlin, Python, TypeScript e Go,
+ * design do JSON (exemplo / JSON Schema) e SQL (tabelas e procedure de carga).
  */
 import { generate, LANGUAGES } from './generators.js'
 import { jsonToModel } from './jsonSource.js'
+import { generateSql } from './sqlTarget.js'
 import { sqlToModel } from './sqlSource.js'
 
 export { LANGUAGES }
@@ -15,13 +17,19 @@ export function generateModels(input, { source = 'auto', language = 'csharp', st
   const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now()
   const src = source === 'auto' ? detectSource(input) : source
   const model = src === 'json' ? jsonToModel(input, { rootName, detectDates }) : sqlToModel(input)
-  const files = generate(model, language, { style, ...opts })
+  let files
+  const warnings = [...model.warnings]
+  if (language === 'sql') {
+    const r = generateSql(model, { style, ...opts })
+    files = r.files
+    warnings.push(...r.warnings)
+  } else files = generate(model, language, { style, ...opts })
   const fields = model.classes.reduce((n, c) => n + c.fields.length, 0)
   return {
     source: src,
     files,
     classes: model.classes.map((c) => ({ name: c.name, kind: c.kind, origin: c.origin, fields: c.fields.length, unknown: c.fields.filter((f) => f.type.base === 'unknown').length })),
-    warnings: model.warnings,
+    warnings,
     stats: { classes: model.classes.length, fields, ms: (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0 },
   }
 }

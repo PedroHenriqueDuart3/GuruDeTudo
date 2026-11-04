@@ -5,6 +5,7 @@
  */
 import { StreamLanguage } from '@codemirror/language'
 import { json as jsonLang } from '@codemirror/lang-json'
+import { MSSQL, sql as sqlLang } from '@codemirror/lang-sql'
 
 const set = (s) => new Set(s.split(' '))
 
@@ -87,6 +88,7 @@ const cache = new Map()
 
 export async function loadLanguage(lang) {
   if (lang === 'json') return jsonLang()
+  if (lang === 'sql') return sqlLang({ dialect: MSSQL, upperCaseKeywords: true })
   if (!CONFIG[lang]) return []
   if (!cache.has(lang)) cache.set(lang, StreamLanguage.define(mode(CONFIG[lang])))
   return cache.get(lang)

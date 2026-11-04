@@ -205,6 +205,13 @@ export function cteAt(toks, k) {
   return false
 }
 
+/** "(" logo depois de REFERENCES dbo.Tabela: lista de colunas, não chamada de função. */
+function afterReferences(toks, k) {
+  let j = k - 1
+  while (j >= 0 && (toks[j].t === 'word' || toks[j].t === 'qid' || toks[j].v === '.') && !isW(toks[j], 'REFERENCES')) j--
+  return j < k - 1 && isW(toks[j], 'REFERENCES')
+}
+
 const rioCol = (col, word) => (word.length <= 6 ? col + 6 - word.length : col)
 
 function commentText(c, indent) {
@@ -1034,7 +1041,7 @@ class Renderer {
       }
       t.unary = isUnary(prev, t)
       const hint = t.t === 'punct' && t.v === '(' && isW(toks[k + 1]) && TABLE_HINTS.has(toks[k + 1].u) && prev?.t !== 'punct'
-      if (hint || needSpace(prev, t)) w.add(' ')
+      if (hint || (t.t === 'punct' && t.v === '(' && afterReferences(toks, k)) || needSpace(prev, t)) w.add(' ')
       w.add(piece(t))
       prev = t
     }

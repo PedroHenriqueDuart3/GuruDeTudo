@@ -9,7 +9,7 @@ Plataforma de ferramentas para desenvolvedores, com processamento 100% local no 
 | **XML Visualizer** | Parser próprio com validação de boa formação, visualizador neon (abertura e fechamento na mesma cor, guias por nível, hover destaca o par), árvore estrutural, busca, formatar e minificar. |
 | **Database Diagram** | Lexer + parser de descida recursiva (AST) para `CREATE TABLE` / `ALTER TABLE` / `CREATE INDEX`. Identifica PK, FK, UNIQUE, NOT NULL, IDENTITY, DEFAULT e CHECK, com cardinalidade pé de galinha e layout automático em camadas. Exporta SVG, PNG, DBML, Mermaid e JSON. |
 | **SQL Forge** | Dois campos: o T-SQL que você cola (procedures, views, functions, triggers, scripts) e o mesmo código no padrão do Pedro, com rio de palavras-chave, vírgula à esquerda, listas entre parênteses alinhadas, "=" em coluna, `CREATE OR ALTER`, `dbo.`, `#tNOME` e os SETs obrigatórios. Um relatório mostra o checklist do padrão, as alterações feitas e as extensões usadas onde o padrão não define regra. Com vários JOINs, todos os `ON` ficam na mesma coluna e os `=` de todos os JOINs ficam alinhados. |
-| **Model Generator** | Recebe `CREATE TABLE` (incluindo temporárias, `DECLARE @t TABLE` e `ALTER TABLE ADD PRIMARY KEY/FOREIGN KEY`), o `SELECT` final de procedures ou um JSON de exemplo. Gera classes em C# (POCO, EF Core, record), Java (POJO, Lombok, JPA, record), Kotlin (data class, JPA), Python (dataclass, Pydantic v2, SQLAlchemy 2.0), TypeScript (interface, type, class, Zod) e Go (struct, GORM). Mantém tipos, tamanhos, precisão, nulidade, PK composta, identity, FK e mapeamento para o nome original da coluna. Também gera o design do JSON: um documento de exemplo no formato do Swagger ou um JSON Schema (draft 2020-12) com tipos, nulos, `maxLength`, `multipleOf`, `required` e formatos. Baixa um .zip com um arquivo por classe. |
+| **Model Generator** | Recebe `CREATE TABLE` (incluindo temporárias, `DECLARE @t TABLE` e `ALTER TABLE ADD PRIMARY KEY/FOREIGN KEY`), o `SELECT` final de procedures ou um JSON de exemplo. Gera classes em C# (POCO, EF Core, record), Java (POJO, Lombok, JPA, record), Kotlin (data class, JPA), Python (dataclass, Pydantic v2, SQLAlchemy 2.0), TypeScript (interface, type, class, Zod) e Go (struct, GORM). Mantém tipos, tamanhos, precisão, nulidade, PK composta, identity, FK e mapeamento para o nome original da coluna. Também gera o design do JSON: um documento de exemplo no formato do Swagger ou um JSON Schema (draft 2020-12) com tipos, nulos, `maxLength`, `multipleOf`, `required` e formatos. Do JSON, gera também o SQL: tabelas (objetos 1:1 viram colunas com prefixo e listas viram tabelas filhas com FK) e uma procedure de carga com `OPENJSON` e transação, já formatada pelo SQL Forge. Baixa um .zip com um arquivo por classe. |
 
 ## Como executar
 
@@ -54,7 +54,7 @@ src/
     xml/            lib/xmlParser.js + xml.worker.js + componentes
     dbdiagram/      lib/sql/{lexer,parser,dialects}.js, schema.js, layout.js, exporters.js
     sqlforge/       lib/{lexer,keywords,formatter}.js + sqlforge.worker.js
-    modelgen/       lib/{sqlSource,jsonSource,naming,generators}.js (usa o lexer/parser do SQL Forge)
+    modelgen/       lib/{sqlSource,jsonSource,naming,generators,sqlTarget}.js (usa o lexer/parser e o formatador do SQL Forge)
     settings/
 tests/              testes dos motores (rodam no Node, sem navegador)
 ```
